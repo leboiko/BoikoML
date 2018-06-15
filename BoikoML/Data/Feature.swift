@@ -8,16 +8,17 @@
 
 import Foundation
 
-enum Dtype {
+public enum Dtype {
     case nominal
     case numeric
 }
 
-public class Feature {
+public class Feature<T> {
     
     private var index : Int
     private var featureName : String
     private var dType : Dtype
+    private var possibleValues : [T] = []
     
     init(index : Int, featureName : String, dType : Dtype) {
         self.index = index
@@ -31,5 +32,17 @@ public class Feature {
     
     public func getName() -> String {
         return self.featureName
+    }
+    
+    public func setPossibleValues(values : [T]) {
+        self.possibleValues = values
+    }
+    
+    public func setDType(dType: Dtype) {
+        self.dType = dType
+    }
+    
+    public func getPossibleValues() -> [T] {
+        return self.possibleValues
     }
 }

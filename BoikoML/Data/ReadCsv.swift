@@ -13,7 +13,6 @@ public class ReadCsv {
     private var path : URL!
     private var separator : String
     private var data : [[CustomStringConvertible]] = [[]]
-    private var nominalFeatures : [String] = []
     
     public init(path : URL, separator : String) {
         self.path = path
@@ -25,6 +24,22 @@ public class ReadCsv {
         let csvData = try String(contentsOfFile: url.path)
         self.parseCsv(csvData: csvData)
         self.integrityCheck()
+    }
+    
+    public func parseCsv(csvData : String) {
+        self.data = csvData
+            .components(separatedBy: "\n")
+            .map({ // Step 1
+                $0.components(separatedBy: self.separator)
+                    .map({ // Step 2
+                        if let int = Int($0) {
+                            return int
+                        } else if let double = Double($0) {
+                            return double
+                        }
+                        return $0
+                    })
+            })
     }
     
     private func integrityCheck() {
@@ -49,25 +64,7 @@ public class ReadCsv {
         }
     }
     
-    public func parseCsv(csvData : String) {
-        self.data = csvData
-            .components(separatedBy: "\n")
-            .map({ // Step 1
-                $0.components(separatedBy: self.separator)
-                    .map({ // Step 2
-                        if let int = Int($0) {
-                            return int
-                        } else if let double = Double($0) {
-                            return double
-                        }
-                        return $0
-                    })
-            })
-    }
     
-    public func setNominalFeatures(features : [String]) {
-        self.nominalFeatures = features
-    }
     
     public func shape() -> [Int] {
         return [self.data.count, self.data[0].count]
@@ -79,18 +76,18 @@ public class ReadCsv {
     
     //    MARK: DataFrame
     
-    public func getCsvHeader() -> [Feature] {
-        var features : [Feature] = []
+    public func getCsvHeader() -> [Feature<Any>] {
+        var features : [Feature<Any>] = [] as! [Feature]
         var counter = 0
         
-        for feature in self.data[0] {
-            var internalDType : Dtype
-            if self.nominalFeatures.contains(feature.description){
-                internalDType = .nominal
-            } else {
-                internalDType = .numeric
-            }
-            features.append(Feature(index: counter, featureName: feature.description, dType: internalDType))
+        for feature in self.data[0] { // Assuming it is ordered
+//            var internalDType : Dtype
+//            if self.nominalFeatures.keys.contains(feature.description){
+//                internalDType = .nominal
+//            } else {
+//                internalDType = .numeric
+//            }
+            features.append(Feature(index: counter, featureName: feature.description, dType: .numeric))
             counter += 1
         }
         self.data.remove(at: 0)

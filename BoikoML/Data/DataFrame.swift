@@ -12,9 +12,9 @@ public class DataFrame {
     
     private var inputData : [[CustomStringConvertible]]
     private var data: [Int: [Double]] = [:]
-    private var header : Header
+    private var header : Header<Any>
     
-    public init(inputData: [[CustomStringConvertible]], header: Header) {
+    public init(inputData: [[CustomStringConvertible]], header: Header<Any>) {
         self.inputData = inputData
         self.header = header
         self.populateDataFrame()
@@ -38,6 +38,10 @@ public class DataFrame {
     
     public func showDf() -> [Int: [Double]] {
         return self.data
+    }
+    
+    public func getHeader() -> [Feature<Any>] {
+        return self.header.header()
     }
     
     public func rowAtIndex(index : Int) -> [Double] {

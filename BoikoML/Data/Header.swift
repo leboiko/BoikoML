@@ -10,12 +10,12 @@ import Foundation
 
 // This class holds the name (string) of the features associated with the keys in the DataFrame dictionary
 
-public class Header {
+public class Header<T> {
     
-    private var features : [Feature]
+    private var features : [Feature<Any>]
     private var metaAttributeIndex : Int
     
-    public init(features : [Feature], metaAttributeIndex : Int) {
+    public init(features : [Feature<Any>], metaAttributeIndex : Int) {
         self.features = features
         self.metaAttributeIndex = metaAttributeIndex
     }
@@ -38,6 +38,22 @@ public class Header {
         }
         
         return featureName
+    }
+    
+    public func header() -> [Feature<Any>] {
+        return self.features
+    }
+    
+    // This function expect a dictionary with the feature name as the key and the possible values as a generic array
+    public func setNominalFeatures(features : [String : [T]]) {
+        for nominalFeature in features.keys {
+            for feature in self.features {
+                if feature.getName() == nominalFeature {
+                    feature.setPossibleValues(values: features[nominalFeature]!)
+                    feature.setDType(dType: .nominal)
+                }
+            }
+        }
     }
     
 }
