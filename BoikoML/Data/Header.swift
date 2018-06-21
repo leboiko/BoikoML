@@ -10,24 +10,35 @@ import Foundation
 
 // This class holds the name (string) of the features associated with the keys in the DataFrame dictionary
 
-public class Header<T> {
-    
+public class Header<T> : CustomStringConvertible {
+
     private var features : [Feature<Any>]
-    private var metaAttributeIndex : Int
+//    private var metaAttributeIndex : Int
     
-    public init(features : [Feature<Any>], metaAttributeIndex : Int) {
+    public init(features : [Feature<Any>]) {
         self.features = features
-        self.metaAttributeIndex = metaAttributeIndex
+//        self.metaAttributeIndex = metaAttributeIndex
     }
     
-    
-    public func getMetaAttributeIndex() -> Int {
-        return self.metaAttributeIndex
+    public var description: String {
+        var featuresList : String = ""
+        for i in 0..<self.features.count {
+            if featuresList != "" {
+               featuresList = featuresList + ", " + self.featureNameAtIndex(index: i)
+            } else {
+                featuresList = self.featureNameAtIndex(index: i)
+            }
+        }
+        return featuresList
     }
     
-    public func getMetaAttributeName() -> String {
-        return featureNameAtIndex(index: self.metaAttributeIndex)
-    }
+//    public func getMetaAttributeIndex() -> Int {
+//        return self.metaAttributeIndex
+//    }
+//
+//    public func getMetaAttributeName() -> String {
+//        return featureNameAtIndex(index: self.metaAttributeIndex)
+//    }
     
     public func featureNameAtIndex(index : Int) -> String {
         var featureName : String = ""

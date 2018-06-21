@@ -8,17 +8,21 @@
 
 import Foundation
 
-public class DataFrame {
+public class DataFrame<T> {
     
-    private var inputData : [[CustomStringConvertible]]
+    private var inputData : [[T]]
     private var data: [Int: [Double]] = [:]
     private var header : Header<Any>
+    private var metaAttributeIndex : Int
     
-    public init(inputData: [[CustomStringConvertible]], header: Header<Any>) {
+    public init(inputData: [[T]], header: Header<Any>, metaAttributeIndex : Int) {
         self.inputData = inputData
         self.header = header
+        self.metaAttributeIndex = metaAttributeIndex
         self.populateDataFrame()
     }
+    
+    // MARK: Internal functions
     
     private func populateDictKeys() {
         for i in 0..<self.inputData[0].count {
@@ -30,14 +34,29 @@ public class DataFrame {
         self.populateDictKeys()
         for instance in self.inputData {
             for i in 0..<instance.count {
-                self.data[i]!.append(Double(instance[i].description)!)
+                if instance[i] is Int {
+                    self.data[i]!.append(Double(instance[i] as! Int))
+                } else {
+                    self.data[i]!.append(instance[i] as! Double)
+                }
             }
         }
-//        print(array)
     }
     
-    public func showDf() -> [Int: [Double]] {
-        return self.data
+    // MARK: Meta attribute related
+    
+    public func getMetaName(index: Int) -> String {
+        return self.header.featureNameAtIndex(index: index)
+    }
+    
+    public func getMetaIndex() -> Int {
+        return self.metaAttributeIndex
+    }
+    
+    // MARK: Utils
+    
+    public func getPossibleValues(key : Int) -> [AnyHashable : Int] {
+        return NSCountedSet(array: Array(self.data[key]!)).dictionary
     }
     
     public func getHeader() -> [Feature<Any>] {
@@ -49,8 +68,13 @@ public class DataFrame {
         for key in self.data.keys.sorted() {
             instance.append(data[key]![index])
         }
-        
         return instance
     }
     
+    public func showDf() -> [Int: [Double]] {
+        return self.data
+    }
+    
 }
+
+

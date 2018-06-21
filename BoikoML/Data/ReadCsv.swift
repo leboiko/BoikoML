@@ -8,38 +8,16 @@
 
 import Foundation
 
-public class ReadCsv {
+public class ReadCsv<T> {
     
     private var path : URL!
     private var separator : String
-    private var data : [[CustomStringConvertible]] = [[]]
+    private var data : [[T]] = [[]]
     
     public init(path : URL, separator : String) {
         self.path = path
         self.separator = separator
         try! self.readCsv(url: self.path)
-    }
-    
-    public func readCsv(url: URL) throws {
-        let csvData = try String(contentsOfFile: url.path)
-        self.parseCsv(csvData: csvData)
-        self.integrityCheck()
-    }
-    
-    public func parseCsv(csvData : String) {
-        self.data = csvData
-            .components(separatedBy: "\n")
-            .map({ // Step 1
-                $0.components(separatedBy: self.separator)
-                    .map({ // Step 2
-                        if let int = Int($0) {
-                            return int
-                        } else if let double = Double($0) {
-                            return double
-                        }
-                        return $0
-                    })
-            })
     }
     
     private func integrityCheck() {
@@ -64,13 +42,36 @@ public class ReadCsv {
         }
     }
     
+    private func readCsv(url: URL) throws {
+        let csvData = try String(contentsOfFile: url.path)
+        self.parseCsv(csvData: csvData)
+        self.integrityCheck()
+    }
+    
+    private func parseCsv(csvData : String) {
+        self.data = csvData
+            .components(separatedBy: "\n")
+            .map({ // Step 1
+                $0.components(separatedBy: self.separator)
+                    .map({ // Step 2
+                        if let int = Int($0) {
+                            return int as! T
+                        } else if let double = Double($0) {
+                            return double as! T
+                        }
+                        return $0 as! T
+                    })
+            })
+    }
+    
+    
     
     
     public func shape() -> [Int] {
         return [self.data.count, self.data[0].count]
     }
     
-    public func getData() -> [[CustomStringConvertible]] {
+    public func getData() -> [[T]] {
         return self.data
     }
     
@@ -87,7 +88,7 @@ public class ReadCsv {
 //            } else {
 //                internalDType = .numeric
 //            }
-            features.append(Feature(index: counter, featureName: feature.description, dType: .numeric))
+            features.append(Feature(index: counter, featureName: feature as! String, dType: .numeric))
             counter += 1
         }
         self.data.remove(at: 0)
